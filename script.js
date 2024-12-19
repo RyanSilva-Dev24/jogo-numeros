@@ -1,73 +1,39 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const categoriesContainer = document.getElementById('categories');
-    const termsContainer = document.getElementById('terms');
-  
-    // Dados
-    const data = {
-      categories: [
-        { id: 'fruits', name: 'Fruits' },
-        { id: 'animals', name: 'Animals' }
-      ],
-      terms: [
-        { text: 'Apple', category: 'fruits' },
-        { text: 'Banana', category: 'fruits' },
-        { text: 'Dog', category: 'animals' },
-        { text: 'Elephant', category: 'animals' }
-      ]
-    };
-  
-    // Renderizar categorias
-    data.categories.forEach(category => {
-      const categoryDiv = document.createElement('div');
-      categoryDiv.classList.add('category');
-      categoryDiv.id = category.id;
-      categoryDiv.textContent = category.name;
-      categoriesContainer.appendChild(categoryDiv);
-    });
-  
-    // Renderizar termos
-    data.terms.forEach((term, index) => {
-      const termDiv = document.createElement('div');
-      termDiv.classList.add('term');
-      termDiv.setAttribute('draggable', 'true');
-      termDiv.setAttribute('id', `term-${index}`);
-      termDiv.dataset.category = term.category;
-      termDiv.textContent = term.text;
-      termsContainer.appendChild(termDiv);
-    });
-  
-    // Ativar funcionalidade de drag-and-drop
-    enableDragAndDrop();
-  });
+// Referências aos elementos do modal
+const resultModal = document.getElementById("resultModal");
+const closeModal = document.getElementById("closeModal");
+const finalScoreElement = document.getElementById("finalScore");
+const restartGameButton = document.getElementById("restartGame");
 
-  function enableDragAndDrop() {
-    const categories = document.querySelectorAll('.category');
-    const terms = document.querySelectorAll('.term');
-  
-    terms.forEach(term => {
-      term.addEventListener('dragstart', event => {
-        event.dataTransfer.setData('text', event.target.dataset.category);
-        event.dataTransfer.setData('id', event.target.id);
-      });
-    });
-  
-    categories.forEach(category => {
-      category.addEventListener('dragover', event => event.preventDefault());
-  
-      category.addEventListener('drop', event => {
-        event.preventDefault();
-        const droppedCategory = event.dataTransfer.getData('text');
-        const termId = event.dataTransfer.getData('id');
-  
-        if (droppedCategory === category.id) {
-          const term = document.getElementById(termId);
-          category.appendChild(term);
-          term.setAttribute('draggable', 'false');
-          term.style.backgroundColor = 'lightgreen'; // Indicar correto
-        } else {
-          alert('Wrong category! Try again.');
-        }
-      });
-    });
-  }
-  
+// Mostrar o modal com os resultados
+function showResults() {
+    // Parar o cronômetro
+    clearInterval(timer);
+
+    // Exibir resultados no modal
+    finalScoreElement.innerText = `
+        Você completou o quiz!
+        Pontuação final: ${score} de ${questionData.length}
+        Tempo total: ${Math.floor(timerSeconds / 60)}:${String(timerSeconds % 60).padStart(2, '0')}
+    `;
+
+    // Exibir o modal
+    resultModal.style.display = "block";
+}
+
+// Fechar o modal
+closeModal.addEventListener("click", () => {
+    resultModal.style.display = "none";
+});
+
+// Reiniciar o jogo
+restartGameButton.addEventListener("click", () => {
+    resultModal.style.display = "none";
+    document.getElementById("fileSelect").value = ""; // Resetar seleção do arquivo
+    document.getElementById("question").innerText = "";
+    document.getElementById("options").innerHTML = "";
+    document.getElementById("score").innerText = "Pontuação: 0";
+    document.getElementById("timer").innerText = "Tempo: 00:00";
+    score = 0;
+    currentQuestionIndex = 0;
+    timerSeconds = 0;
+});
